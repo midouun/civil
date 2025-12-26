@@ -1,0 +1,258 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>تحدي القانون المدني</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #f0f2f5;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            margin: 0;
+            padding: 20px;
+        }
+        .container {
+            background: white;
+            padding: 2rem;
+            border-radius: 20px;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.1);
+            width: 100%;
+            max-width: 700px;
+            text-align: center;
+        }
+        h1 { color: #2c3e50; margin-bottom: 5px; font-size: 1.8rem; }
+        .stats { font-size: 0.9rem; color: #7f8c8d; margin-bottom: 20px; }
+        
+        .question-card {
+            background: #ecf0f1;
+            padding: 25px;
+            border-radius: 15px;
+            margin-bottom: 25px;
+            min-height: 100px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.25rem;
+            color: #2c3e50;
+            font-weight: 600;
+            line-height: 1.6;
+        }
+
+        .buttons { display: flex; gap: 15px; justify-content: center; flex-wrap: wrap; }
+        button {
+            padding: 12px 40px;
+            font-size: 1.1rem;
+            border: none;
+            border-radius: 10px;
+            cursor: pointer;
+            transition: all 0.2s;
+            font-family: inherit;
+            font-weight: bold;
+            flex: 1;
+            max-width: 180px;
+        }
+        .btn-yes { background-color: #27ae60; color: white; }
+        .btn-yes:hover { background-color: #219150; transform: translateY(-2px); }
+        .btn-no { background-color: #c0392b; color: white; }
+        .btn-no:hover { background-color: #a93226; transform: translateY(-2px); }
+
+        .result-box {
+            margin-top: 20px;
+            padding: 15px;
+            border-radius: 10px;
+            display: none;
+            text-align: right;
+            line-height: 1.8;
+            font-size: 1rem;
+            animation: fadeIn 0.5s;
+        }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+
+        .correct { background-color: #d4edda; color: #155724; border-right: 5px solid #28a745; }
+        .wrong { background-color: #f8d7da; color: #721c24; border-right: 5px solid #dc3545; }
+
+        .next-btn {
+            background-color: #3498db;
+            color: white;
+            margin-top: 20px;
+            display: none;
+            width: 100%;
+        }
+        .next-btn:hover { background-color: #2980b9; }
+
+        .loader { color: #3498db; font-weight: bold; margin-top: 20px; }
+
+        /* تنسيق قسم كلمة الطالب */
+        .author-note {
+            background-color: #fff8e1;
+            border: 1px solid #ffe0b2;
+            color: #5d4037;
+            padding: 20px;
+            border-radius: 12px;
+            margin-top: 40px;
+            text-align: right;
+            font-size: 0.95rem;
+            line-height: 1.7;
+            position: relative;
+        }
+        .author-note h3 {
+            margin-top: 0;
+            color: #e67e22;
+            font-size: 1.1rem;
+            text-align: center;
+            margin-bottom: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+        }
+        
+        /* التذييل */
+        .footer {
+            margin-top: 20px;
+            font-size: 0.8rem;
+            color: #95a5a6;
+            border-top: 1px solid #eee;
+            padding-top: 15px;
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <h1>⚖️ بنك الأسئلة المفخخة</h1>
+    <div class="stats">سؤال رقم <span id="current-index">0</span> من إجمالي <span id="total-count">0</span></div>
+    
+    <div id="loader" class="loader">جاري تحميل الأسئلة من الملفات...</div>
+    
+    <div id="quiz-area" style="display:none;">
+        <div class="question-card" id="question-text"></div>
+
+        <div class="buttons" id="action-buttons">
+            <button class="btn-yes" onclick="checkAnswer(true)">نعم (صحيح)</button>
+            <button class="btn-no" onclick="checkAnswer(false)">لا (خطأ)</button>
+        </div>
+
+        <div id="result" class="result-box"></div>
+        <button id="next-btn" class="next-btn" onclick="nextQuestion()">السؤال التالي ⬅️</button>
+    </div>
+
+    <div class="author-note">
+        <h3>💡 وقفة قانونية (بقلم محمد ناذر)</h3>
+        <p>
+            <b>رأي شخصي:</b> يلزم أولاً تحصيل العلم لذاته، فلا يعقل أن نتعلم لأجل الامتحان فقط.
+            <br><br>
+            إن الفهم العميق لمصادر الالتزام يجعلك قادراً على الإجابة عن أي سؤال؛ سواء كانت مصادر <b>إرادية (التصرف القانوني)</b> وتتمثل في الإرادة المنفردة (جانب واحد) أو العقد (جانبين)، أو كانت مصادر <b>غير إرادية (الواقعة القانونية)</b> وتتمثل في العمل المستحق للتعويض (المسؤولية التقصيرية/العمل الضار) والإثراء بلا سبب.
+        </p>
+    </div>
+
+    <div class="footer">
+        الموقع مصمم من طرف الطالب <b>محمد ناذر</b> بالتنسيق مع طلبة آخرين.<br>
+        بالتوفيق للجميع ❤️
+    </div>
+</div>
+
+<script>
+    let questions = [];
+    let currentIndex = 0;
+
+    // قائمة بملفات الأسئلة (يمكنك إضافة المزيد هنا مستقبلاً)
+    const fileList = [
+        'questions.json',
+        'questions2.json',
+        'questions3.json',
+        'questions4.json',
+        'questions5.json'
+    ];
+
+    async function loadQuestions() {
+        try {
+            document.getElementById('loader').innerText = "جاري تجميع بنك الأسئلة...";
+            questions = [];
+
+            for (const fileName of fileList) {
+                try {
+                    const response = await fetch(fileName);
+                    if (response.ok) {
+                        const data = await response.json();
+                        questions = questions.concat(data);
+                    }
+                } catch (e) {
+                    console.warn(`تعذر تحميل ${fileName}`);
+                }
+            }
+
+            if (questions.length === 0) throw new Error("لم يتم العثور على أسئلة");
+
+            // خلط الأسئلة
+            questions.sort(() => Math.random() - 0.5);
+
+            document.getElementById('total-count').innerText = questions.length;
+            document.getElementById('loader').style.display = 'none';
+            document.getElementById('quiz-area').style.display = 'block';
+            
+            showQuestion();
+
+        } catch (error) {
+            document.getElementById('loader').innerText = "حدث خطأ في تحميل البيانات.";
+            console.error(error);
+        }
+    }
+
+    function showQuestion() {
+        document.getElementById('result').style.display = 'none';
+        document.getElementById('result').className = 'result-box';
+        document.getElementById('next-btn').style.display = 'none';
+        document.getElementById('action-buttons').style.display = 'flex';
+        
+        const q = questions[currentIndex];
+        document.getElementById('question-text').innerText = q.q;
+        document.getElementById('current-index').innerText = currentIndex + 1;
+    }
+
+    function checkAnswer(userAnswer) {
+        const q = questions[currentIndex];
+        const resultBox = document.getElementById('result');
+        
+        // المنطق: الإجابة الصحيحة هي "خطأ" (false)
+        if (userAnswer === false) {
+            resultBox.innerHTML = `<strong>✅ إجابة دقيقة!</strong><br>التعليل: ${q.reason}`;
+            resultBox.classList.add('correct');
+            resultBox.classList.remove('wrong');
+        } else {
+            resultBox.innerHTML = `<strong>❌ وقعت في الفخ!</strong><br>الصواب هو (خطأ).<br>التعليل: ${q.reason}`;
+            resultBox.classList.add('wrong');
+            resultBox.classList.remove('correct');
+        }
+
+        resultBox.style.display = 'block';
+        document.getElementById('action-buttons').style.display = 'none';
+        document.getElementById('next-btn').style.display = 'inline-block';
+    }
+
+    function nextQuestion() {
+        currentIndex++;
+        if (currentIndex < questions.length) {
+            showQuestion();
+        } else {
+            document.querySelector('.container').innerHTML = `
+                <h1 style="color:#27ae60">🎉 انتهى التحدي!</h1>
+                <p>لقد راجعت جميع الأسئلة (${questions.length}).</p>
+                <div class="author-note">
+                    <h3>نصيحة أخيرة</h3>
+                    <p>تذكر دائماً: القانون فهم وتحليل، وليس مجرد حفظ للنصوص.</p>
+                </div>
+                <button onclick="location.reload()" class="next-btn" style="display:inline-block">إعادة المحاولة</button>
+            `;
+        }
+    }
+
+    loadQuestions();
+</script>
+
+</body>
+</html>
